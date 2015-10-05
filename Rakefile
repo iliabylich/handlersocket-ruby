@@ -6,7 +6,7 @@ Rake::ExtensionTask.new('handlersocket_ext')
 HOST = "139.162.148.140"
 PORT = 9999
 USERNAME = 'root'
-BM_COUNT = 10
+BM_COUNT = 100
 
 def do_test
   hs = Handlersocket.new(HOST, PORT)
