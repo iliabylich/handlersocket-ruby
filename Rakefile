@@ -17,6 +17,13 @@ def do_bm
   puts Time.now - start
 end
 
+def check_commands
+  hs = Handlersocket.new("139.162.148.140", 9999)
+  100_000.times do
+    puts hs.find_cmd('0', '>', ['1'], ['100'])
+  end
+end
+
 namespace :smoke_test do
   desc 'Pure test'
   task :pure do
@@ -28,6 +35,14 @@ namespace :smoke_test do
   task :ext do
     require 'handlersocket/ext'
     do_test
+  end
+end
+
+namespace :check_commands do
+  desc 'Ext'
+  task :ext do
+    require 'handlersocket/ext'
+    check_commands
   end
 end
 

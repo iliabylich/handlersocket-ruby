@@ -11,7 +11,14 @@ class Handlersocket
     attr_accessor :logger
   end
 
-  self.logger = Logger.new('/dev/null')
+  self.logger = Logger.new(STDOUT)
+
+  OPEN_IDX_COMMAND_START = "P"
+  ARGS_SEPARATOR = "\t"
+  COLUMNS_SEPARATOR = ","
+  END_OF_LINE = "\n"
+  LOGGING_REQUEST_PREFIX = "HS Request: "
+  LOGGING_RESPONSE_PREFIX = "HS Response: "
 end
 
 # require 'handlersocket/pure'

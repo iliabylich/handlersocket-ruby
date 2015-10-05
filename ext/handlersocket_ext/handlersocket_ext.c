@@ -54,11 +54,12 @@ static VALUE rb_hs_initialize(VALUE hs, VALUE r_host, VALUE r_port) {
 
 
 void Init_handlersocket_ext(void) {
-  init_handlersocket_constants();
   rb_Handlersocket = rb_const_get(rb_cObject, rb_intern("Handlersocket"));
+  init_handlersocket_constants();
 
   rb_define_alloc_func(rb_Handlersocket, hs_alloc);
   rb_define_method(rb_Handlersocket, "initialize", rb_hs_initialize, 2);
   rb_define_method(rb_Handlersocket, "open_index", rb_hs_open_index, 5);
+  rb_define_method(rb_Handlersocket, "find_cmd", hs_find_cmd, -1);
   rb_define_method(rb_Handlersocket, "find", rb_hs_find, -1);
 }

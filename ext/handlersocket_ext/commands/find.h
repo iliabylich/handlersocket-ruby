@@ -1,4 +1,4 @@
-static VALUE hs_find_cmd(int argc, VALUE *argv) {
+VALUE hs_find_cmd(int argc, VALUE *argv) {
   VALUE req;
   VALUE idx_id, op, args, extra;
   int args_length, i;
