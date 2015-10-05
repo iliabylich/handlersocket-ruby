@@ -1,4 +1,3 @@
-require 'logger'
 require "handlersocket/version"
 
 class Handlersocket
@@ -7,18 +6,15 @@ class Handlersocket
     @port = port
   end
 
-  class << self
-    attr_accessor :logger
+  def open_index(idx_id, db_name, tbl_name, idx_name, columns)
+    req = ["P", idx_id, db_name, tbl_name, idx_name, columns.join(",")]
+    query(req)
   end
 
-  self.logger = Logger.new('/dev/null')
-
-  OPEN_IDX_COMMAND_START = "P"
-  ARGS_SEPARATOR = "\t"
-  COLUMNS_SEPARATOR = ","
-  END_OF_LINE = "\n"
-  LOGGING_REQUEST_PREFIX = "HS Request: "
-  LOGGING_RESPONSE_PREFIX = "HS Response: "
+  def find(idx_id, op, args, extra = [])
+    req = [idx_id, op, args.length.to_s, *args, *extra]
+    query(req)
+  end
 end
 
 # require 'handlersocket/pure'
