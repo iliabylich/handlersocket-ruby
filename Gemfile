@@ -4,3 +4,5 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'mysql2'
+gem 'benchmark-ips'
+gem 'pry'
