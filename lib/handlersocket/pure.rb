@@ -2,8 +2,6 @@ require 'socket'
 require 'handlersocket'
 
 class Handlersocket
-  private
-
   def socket
     @socket ||= TCPSocket.new(@host, @port)
   end

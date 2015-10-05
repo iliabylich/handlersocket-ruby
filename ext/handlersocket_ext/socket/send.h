@@ -4,19 +4,33 @@
 #define SOCKET_WRITE(socket_desc, message) send(*socket_desc, message, strlen(message) , 0)
 
 static void hs_write(int* socket_desc, VALUE ary) {
-  char *message;
-  int i;
+  char *message, *buffer;
+  int i, l1, l2;
   VALUE item;
+  message = NULL;
 
   for (i = 0; i < RARRAY_LEN(ary); ++i) {
     item = RARRAY_AREF(ary, i);
-    message = StringValuePtr(item);
-    SOCKET_WRITE(socket_desc, message);
-    if (i + 1 < RARRAY_LEN(ary)) {
-      SOCKET_WRITE(socket_desc, "\t");
+    buffer = StringValuePtr(item);
+    l1 = message ? strlen(message) : 0;
+    l2 = buffer  ? strlen(buffer)  : 0;
+    if (l1 == 0) {
+      message = realloc(message, l2);
+      strcpy(message, buffer);
+    } else {
+      message = realloc(message, l1 + l2 + 2);
+      message[l1] = '\t';
+      memcpy(message + l1 + 1, buffer, l2);
+      message[l1 + l2 + 1] = 0;
     }
   }
-  SOCKET_WRITE(socket_desc, "\n");
+  l1 = strlen(message);
+  message = realloc(message, l1 + 2);
+  message[l1] = '\n';
+  message[l1 + 1] = 0;
+
+  // rb_warn("Writing: '%s'", message);
+  SOCKET_WRITE(socket_desc, message);
 }
 
 static VALUE hs_read_until_newline(int* socket_desc) {
