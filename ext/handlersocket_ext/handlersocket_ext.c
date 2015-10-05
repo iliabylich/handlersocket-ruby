@@ -54,5 +54,5 @@ void Init_handlersocket_ext(void) {
 
   rb_define_alloc_func(rb_Handlersocket, hs_alloc);
   rb_define_method(rb_Handlersocket, "initialize", rb_hs_initialize, 2);
-  rb_define_method(rb_Handlersocket, "query", rb_hs_query, -1);
+  rb_define_method(rb_Handlersocket, "query", rb_hs_query, 1);
 }

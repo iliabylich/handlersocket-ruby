@@ -43,11 +43,9 @@ static VALUE hs_read_until_newline(int* socket_desc) {
   return res;
 }
 
-static VALUE rb_hs_query(int argc, VALUE* argv, VALUE hs) {
+static VALUE rb_hs_query(VALUE hs, VALUE req) {
   int* socket_desc;
-  VALUE req;
 
-  rb_scan_args(argc, argv, "1", &req);
   Data_Get_Struct(hs, int, socket_desc);
 
   hs_write(socket_desc, req);

@@ -18,7 +18,7 @@ def do_bm
   hs = Handlersocket.new(HOST, PORT)
   start = Time.now
   hs.open_index('0', 'test', 't', 'PRIMARY', ['id', 'col'])
-  BM_COUNT.times { hs.find('0', '=', ['1'], ['100']) }
+  BM_COUNT.times { hs.query(['0', '=', '1', '1', '100']) }
   puts Time.now - start
 end
 
