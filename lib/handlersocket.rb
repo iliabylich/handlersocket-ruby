@@ -11,7 +11,7 @@ class Handlersocket
     attr_accessor :logger
   end
 
-  self.logger = Logger.new(STDOUT)
+  self.logger = Logger.new('/dev/null')
 
   OPEN_IDX_COMMAND_START = "P"
   ARGS_SEPARATOR = "\t"
