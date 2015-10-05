@@ -24,6 +24,24 @@ Or install it yourself as:
 
 TODO: Write usage instructions here
 
+## Benchmarks
+
+```
+Calculating -------------------------------------
+             pure HS     2.000  i/100ms
+              ext HS     1.087k i/100ms
+              mysql2   666.000  i/100ms
+-------------------------------------------------
+             pure HS     50.040  (± 0.0%) i/s -    252.000
+              ext HS     11.803M (±23.3%) i/s -     52.771M
+              mysql2      4.191M (±14.3%) i/s -     19.687M
+
+Comparison:
+              ext HS: 11802503.8 i/s
+              mysql2:  4191362.0 i/s - 2.82x slower
+             pure HS:       50.0 i/s - 235862.48x slower
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake false` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
