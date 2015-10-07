@@ -3,77 +3,88 @@ require "bundler/gem_tasks"
 require 'rake/extensiontask'
 Rake::ExtensionTask.new('handlersocket_ext')
 
-HOST = "139.162.148.140"
-PORT = 9999
-USERNAME = 'root'
-BM_COUNT = 100
+require 'bundler/setup'
+require 'mysql2'
+mysql_config = YAML.load_file(File.expand_path('../mysql.yml', __FILE__))
+client = Mysql2::Client.new(mysql_config)
 
-def do_test
-  hs = Handlersocket.new(HOST, PORT)
-  puts hs.open_index('0', 'test', 't', 'PRIMARY', ['id', 'col']).inspect
-  puts hs.find('0', '>', ['1'], ['100']).inspect
-end
+namespace :test do
+  namespace :db do
+    desc 'Drops tests database'
+    task :drop do
+      client.query("DROP DATABASE IF EXISTS hs_test")
+    end
 
-def do_bm
-  hs = Handlersocket.new(HOST, PORT)
-  start = Time.now
-  hs.open_index('0', 'test', 't', 'PRIMARY', ['id', 'col'])
-  BM_COUNT.times { hs.query(['0', '=', '1', '1', '100']) }
-  puts Time.now - start
-end
+    desc 'Prepares test database'
+    task :create do
+      client.query("CREATE DATABASE hs_test")
+      client.query("use hs_test")
+      client.query <<-SQL
+        CREATE TABLE users (
+          id int(11) NOT NULL AUTO_INCREMENT,
+          email varchar(255) NOT NULL DEFAULT '',
+          PRIMARY KEY (id)
+        )
+      SQL
+    end
 
-def do_mysql_bm
-  client = Mysql2::Client.new(host: HOST, username: USERNAME, database: 'test')
-  start = Time.now
-  BM_COUNT.times { client.query("SELECT * FROM t LIMIT 100") }
-  puts Time.now - start
-end
-
-def check_commands
-  hs = Handlersocket.new(HOST, 9999)
-  100_000.times do
-    puts hs.find_cmd('0', '>', ['1'], ['100'])
+    desc 'Seeds test database'
+    task :seed do
+      count = ENV.fetch('SEED_COUNT', 100)
+      1.upto(count) do |i|
+        client.query("INSERT INTO users(email) VALUES ('email#{i}@email')")
+      end
+    end
   end
 end
 
-namespace :smoke_test do
-  desc 'Pure test'
-  task :pure do
-    require 'handlersocket/pure'
-    do_test
-  end
+desc 'Runs benchmark hs_pure/hs_ext/mysql2'
+task :benchmark do
+  mysql_config = YAML.load_file(File.expand_path('../mysql.yml', __FILE__))
+  hs_config    = YAML.load_file(File.expand_path('../handlersocket.yml', __FILE__))
 
-  desc 'Ext test'
-  task :ext do
-    require 'handlersocket/ext'
-    do_test
+  require 'bundler/setup'
+  require 'benchmark/ips'
+
+  require 'handlersocket/pure'
+  class Handlersocket
+    alias_method :pure_query, :query
+    undef_method :query
+  end
+  pure_socket = Handlersocket.new(hs_config['host'], hs_config['port'])
+  pure_socket.pure_query(['P', '0', 'hs_test', 'users', 'PRIMARY', 'id', 'col'])
+
+  require 'handlersocket/ext'
+  class Handlersocket
+    alias_method :ext_query, :query
+    undef_method :query
+  end
+  ext_socket = Handlersocket.new(hs_config['host'], hs_config['port'])
+  ext_socket.ext_query(['P', '0', 'hs_test', 'users', 'PRIMARY', 'id', 'col'])
+
+  require 'mysql2'
+  mysql_client = Mysql2::Client.new(mysql_config)
+
+  Benchmark.ips do |x|
+    x.config time: 5, warmup: 2
+
+    x.report 'pure HS' do |times|
+      pure_socket.pure_query(['0', '=', '1', times.to_s, '100'])
+    end
+
+    x.report 'ext HS' do |times|
+      ext_socket.ext_query(['0', '=', '1', times.to_s, '100'])
+    end
+
+    x.report 'mysql2' do |times|
+      mysql_client.query("SELECT * FROM users where id = #{times} LIMIT 100").to_a
+    end
+
+    x.compare!
   end
 end
 
-namespace :check_commands do
-  desc 'Ext'
-  task :ext do
-    require 'handlersocket/ext'
-    check_commands
-  end
-end
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new(:spec)
 
-namespace :bm do
-  desc 'Pure BM'
-  task :pure do
-    require 'handlersocket/pure'
-    do_bm
-  end
-
-  desc 'Ext BM'
-  task :ext do
-    require 'handlersocket/ext'
-    do_bm
-  end
-
-  desc 'Mysql2 BM'
-  task :mysql2 do
-    require 'mysql2'
-    do_mysql_bm
-  end
-end
+task default: [:clobber, :compile, :spec]

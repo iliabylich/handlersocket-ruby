@@ -29,17 +29,17 @@ TODO: Write usage instructions here
 ```
 Calculating -------------------------------------
              pure HS     2.000  i/100ms
-              ext HS     1.087k i/100ms
-              mysql2   666.000  i/100ms
+              ext HS     3.149k i/100ms
+              mysql2   669.000  i/100ms
 -------------------------------------------------
-             pure HS     50.040  (± 0.0%) i/s -    252.000
-              ext HS     11.803M (±23.3%) i/s -     52.771M
-              mysql2      4.191M (±14.3%) i/s -     19.687M
+             pure HS     49.979  (± 2.0%) i/s -    250.000
+              ext HS    110.369M (±15.7%) i/s -    467.793M
+              mysql2      5.218M (±16.3%) i/s -     23.869M
 
 Comparison:
-              ext HS: 11802503.8 i/s
-              mysql2:  4191362.0 i/s - 2.82x slower
-             pure HS:       50.0 i/s - 235862.48x slower
+              ext HS: 110369437.2 i/s
+              mysql2:  5218120.6 i/s - 21.15x slower
+             pure HS:       50.0 i/s - 2208314.91x slower
 ```
 
 ## Development

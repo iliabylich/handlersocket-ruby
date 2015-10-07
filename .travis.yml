@@ -1,4 +1,14 @@
 language: ruby
+before_install: gem install bundler -v 1.10.6
+before_script:
+  - cp local_handlersocket.yml handlersocket.yml
+  - cp mysql.yml.sample mysql.yml
+  - bin/mock_hs_server > server_log &
+after_script:
+  - cat server_log
 rvm:
   - 2.2.3
-before_install: gem install bundler -v 1.10.6
+  - 2.0.0
+env:
+  - HS_VERSION=pure
+  - HS_VERSION=ext

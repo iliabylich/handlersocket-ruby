@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require 'socket'
+
+port = (ENV['HS_PORT'] || '9997').to_i
+server = TCPServer.new(port)
+puts "Server is running on 127.0.0.1:#{port}"
+
+REQ_RES = {
+  %w(P 0 hs_test users PRIMARY id,email) => %w(0 1),
+  %w(P 1 hs_test users PRIMARY id,email) => %w(0 1),
+  %w(P 2 missing-db missing-table missing-idx ) => %w(1 1 open_table),
+  %w(0 = 1 12 100) => %w(0 2 12 email12@email)
+}
+
+loop do
+  Thread.new(server.accept) do |client|
+    loop do
+      req = client.gets
+      if req
+        puts "[client=#{client.object_id} REQ] #{req.inspect}"
+        res = REQ_RES[req.chomp.split("\t")] || ["Unsupported"]
+        res = res.join("\t") + "\n"
+        puts "[client=#{client.object_id} RES] #{res.inspect}"
+        client.puts(res)
+      end
+    end
+  end
+end

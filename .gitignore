@@ -11,3 +11,6 @@
 .ruby-gemset
 .rvmrc
 lib/handlersocket_ext.so
+.rspec
+mysql.yml
+handlersocket.yml
