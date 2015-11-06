@@ -3,6 +3,10 @@
 
 VALUE rb_Handlersocket;
 
+#ifndef RARRAY_AREF
+  #define RARRAY_AREF(ary,n) (RARRAY_PTR(ary)[n])
+#endif
+
 #include "socket/send.h"
 
 
