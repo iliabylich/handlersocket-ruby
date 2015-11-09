@@ -1,8 +1,21 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 
+// Writes passed message to a socket
+//
+// @param [int] socket_desc
+// @param [char*] message
+//
 #define SOCKET_WRITE(socket_desc, message) send(socket_desc, message, strlen(message) , 0)
 
+
+// Concatenates a string +s1+ and a string +s2+ with the length +l2+
+// Result will be placed into +s1+
+//
+// @param [char**] s1
+// @param [char*] s2
+// @param [int] l2
+//
 void concat(char **s1, char *s2, int l2) {
   int l1;
   char *res;
@@ -17,6 +30,11 @@ void concat(char **s1, char *s2, int l2) {
   }
 }
 
+// Writes an array of Ruby strings to passed socket
+//
+// @param [int] socket_desc
+// @param [Array<String>] ary
+//
 static void hs_write(int socket_desc, VALUE ary) {
   char *message, *buffer;
   int i, l1, l2;
@@ -46,7 +64,14 @@ static void hs_write(int socket_desc, VALUE ary) {
   SOCKET_WRITE(socket_desc, message);
 }
 
-
+// Reads all available data from the passed socket until the new line
+//
+// @param [int] socket_desc
+//
+// @return [char*] reply from the server
+//
+// @raise [StandardError] when socket is closed
+//
 static char* hs_read_until_newline(int socket_desc) {
   int buffer_length = 100, bytes_read = 0;
   char buf[buffer_length];
@@ -67,6 +92,12 @@ static char* hs_read_until_newline(int socket_desc) {
   return result;
 }
 
+// Parses "\t"-terminated response from the HS server
+//
+// @param [char*] raw_response
+//
+// @return [Array<String>] parsed reply
+//
 static VALUE hs_parse_response(char* raw_response) {
   VALUE ary;
   char *token;
@@ -85,6 +116,13 @@ static VALUE hs_parse_response(char* raw_response) {
   return ary;
 }
 
+// Sends a query to the HS server and parses response
+//
+// @param [Handlersocket] hs
+// @param [Array<String>] req request data
+//
+// @return [Array<String>] reply
+//
 static VALUE rb_hs_query(VALUE hs, VALUE req) {
   SOCKET_DATA *data;
   char *raw_result;

@@ -16,17 +16,31 @@ typedef struct SocketData SOCKET_DATA;
 
 #include "socket/send.h"
 
-
+// A default destructor for a Handlersocket obejct that closes connection
+//
+// @param [Data] data
+// @see SocketData
+//
 static void hs_free(SOCKET_DATA *data) {
   close(data->socket_desc);
 }
 
+// An allocator for a Handlersocket object
+//
+// @param [Handlersocket] hs
+//
+// @return [Data] SocketData
+//
 static VALUE hs_alloc(VALUE hs) {
   SOCKET_DATA *data;
   data = malloc(sizeof(SOCKET_DATA));
   return Data_Wrap_Struct(hs, NULL, hs_free, data);
 }
 
+// Disconnects passed Handlersocket
+//
+// @param [Handlersocket] hs
+//
 static VALUE rb_hs_disconnect(VALUE hs) {
   SOCKET_DATA *data;
   Data_Get_Struct(hs, SOCKET_DATA, data);
@@ -35,6 +49,12 @@ static VALUE rb_hs_disconnect(VALUE hs) {
   return Qnil;
 }
 
+// Establishes a connection to HS server
+//
+// @param [Handlersocket] hs
+//
+// @return [nil]
+//
 static VALUE rb_hs_connect(VALUE hs) {
   SOCKET_DATA *data;
   struct sockaddr_in server;
@@ -61,6 +81,12 @@ static VALUE rb_hs_connect(VALUE hs) {
   return Qnil;
 }
 
+// Re-establishes a connection to HS server
+//
+// @param [Handlersocket] hs
+//
+// @return [nil]
+//
 static VALUE rb_hs_reconnect(VALUE hs) {
   rb_hs_disconnect(hs);
   rb_hs_connect(hs);
@@ -68,6 +94,14 @@ static VALUE rb_hs_reconnect(VALUE hs) {
   return Qnil;
 }
 
+// Constructor for a Handlersocket object
+//
+// @param [Handlersocket] hs
+// @param [String] host
+// @param [Fixnum] port
+//
+// @return [nil]
+//
 static VALUE rb_hs_initialize(VALUE hs, VALUE host, VALUE port) {
   SOCKET_DATA *data;
   Data_Get_Struct(hs, SOCKET_DATA, data);
