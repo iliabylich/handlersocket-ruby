@@ -1,7 +1,7 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 
-#define SOCKET_WRITE(socket_desc, message) send(*socket_desc, message, strlen(message) , 0)
+#define SOCKET_WRITE(socket_desc, message) send(socket_desc, message, strlen(message) , 0)
 
 void concat(char **s1, char *s2, int l2) {
   int l1;
@@ -17,7 +17,7 @@ void concat(char **s1, char *s2, int l2) {
   }
 }
 
-static void hs_write(int *socket_desc, VALUE ary) {
+static void hs_write(int socket_desc, VALUE ary) {
   char *message, *buffer;
   int i, l1, l2;
   VALUE item;
@@ -47,14 +47,17 @@ static void hs_write(int *socket_desc, VALUE ary) {
 }
 
 
-static char* hs_read_until_newline(int* socket_desc) {
+static char* hs_read_until_newline(int socket_desc) {
   int buffer_length = 100, bytes_read = 0;
   char buf[buffer_length];
   char *result = NULL;
   int end_of_line_matched = 0;
 
   while (!end_of_line_matched) {
-    bytes_read = read(*socket_desc, buf, buffer_length);
+    bytes_read = read(socket_desc, buf, buffer_length);
+    if (!bytes_read) {
+      rb_raise(rb_eStandardError, "HS: closed socket");
+    }
     concat(&result, buf, bytes_read);
     if (buf[bytes_read - 1] == '\n') {
       end_of_line_matched = 1;
@@ -83,12 +86,12 @@ static VALUE hs_parse_response(char* raw_response) {
 }
 
 static VALUE rb_hs_query(VALUE hs, VALUE req) {
-  int* socket_desc;
+  SOCKET_DATA *data;
   char *raw_result;
 
-  Data_Get_Struct(hs, int, socket_desc);
+  Data_Get_Struct(hs, SOCKET_DATA, data);
 
-  hs_write(socket_desc, req);
-  raw_result = hs_read_until_newline(socket_desc);
+  hs_write(data->socket_desc, req);
+  raw_result = hs_read_until_newline(data->socket_desc);
   return hs_parse_response(raw_result);
 }
