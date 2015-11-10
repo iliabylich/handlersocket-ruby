@@ -21,10 +21,10 @@ Add this line to your application's Gemfile:
 
 ```ruby
 # If you want to use Ruby-based implementation
-gem 'handlersocket', require: 'handlersocket/pure'
+gem 'handlersocket-rb', require: 'handlersocket/pure'
 
 # If you want to use C-based implementation
-gem 'handlersocket', require: 'handlersocket/ext'
+gem 'handlersocket-rb', require: 'handlersocket/ext'
 ```
 
 And then execute:
@@ -33,7 +33,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install handlersocket
+    $ gem install handlersocket-rb
 
 ## Usage
 
